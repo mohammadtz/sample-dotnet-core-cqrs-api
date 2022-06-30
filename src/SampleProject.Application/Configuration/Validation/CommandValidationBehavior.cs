@@ -8,38 +8,40 @@ using MediatR;
 
 namespace SampleProject.Application.Configuration.Validation
 {
-public class CommandValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-{
-    private readonly IList<IValidator<TRequest>> _validators;
-
-    public CommandValidationBehavior(IList<IValidator<TRequest>> validators)
+    public class CommandValidationBehavior<TRequest, TResponse>
+        : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
     {
-        this._validators = validators;
-    }
+        private readonly IList<IValidator<TRequest>> _validators;
 
-    public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-    {
-        var errors = _validators
-            .Select(v => v.Validate(request))
-            .SelectMany(result => result.Errors)
-            .Where(error => error != null)
-            .ToList();
-
-        if (errors.Any())
+        public CommandValidationBehavior(IList<IValidator<TRequest>> validators)
         {
-            var errorBuilder = new StringBuilder();
-
-            errorBuilder.AppendLine("Invalid command, reason: ");
-
-            foreach (var error in errors)
-            {
-                errorBuilder.AppendLine(error.ErrorMessage);
-            }
-
-            throw new InvalidCommandException(errorBuilder.ToString(), null);
+            this._validators = validators;
         }
 
-        return next();
+        public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        {
+            var errors = _validators
+                .Select(v => v.Validate(request))
+                .SelectMany(result => result.Errors)
+                .Where(error => error != null)
+                .ToList();
+
+            if (errors.Any())
+            {
+                var errorBuilder = new StringBuilder();
+
+                errorBuilder.AppendLine("Invalid command, reason: ");
+
+                foreach (var error in errors)
+                {
+                    errorBuilder.AppendLine(error.ErrorMessage);
+                }
+
+                throw new InvalidCommandException(errorBuilder.ToString(), null);
+            }
+
+            return next();
+        }
     }
-}
 }

@@ -67,9 +67,7 @@ namespace SampleProject.Infrastructure.Processing
                 _types.AddRange(types);
             }
 
-            public IEnumerable<IComponentRegistration> RegistrationsFor(
-                Service service,
-                Func<Service, IEnumerable<IComponentRegistration>> registrationAccessor)
+            public IEnumerable<IComponentRegistration> RegistrationsFor(Service service, Func<Service, IEnumerable<ServiceRegistration>> registrationAccessor)
             {
                 var components = _source.RegistrationsFor(service, registrationAccessor);
                 foreach (var c in components)

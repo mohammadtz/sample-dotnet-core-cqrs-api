@@ -8,7 +8,7 @@ namespace SampleProject.Infrastructure.Emails
         public async Task SendEmailAsync(EmailMessage message)
         {
             // Integration with email service.
-
+            await Task.CompletedTask;
             return;
         }
     }
